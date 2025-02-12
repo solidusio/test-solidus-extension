@@ -1,0 +1,89 @@
+name: Build and test a solidus extension
+description: Test solidus extension
+inputs:
+  rails_version:
+    description: Rails version to use
+    required: true
+    default: 8.0
+  solidus_branch:
+    description: Solidus branch to use
+    required: true
+    default: main
+  database:
+    description: Database to use. sqlite3, postgresql, or mariadb
+    required: true
+    default: sqlite3
+  ruby-version:
+    description: Ruby version to use
+    required: true
+    default: "3.3"
+services:
+  postgres:
+    image: postgres:latest
+    env:
+      POSTGRES_USER: solidus_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: solidus_extension_test
+    ports: ["5432:5432"]
+    options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+  mariadb:
+    image: mariadb:latest
+    ports: ["3307:3306"]
+    env:
+      MARIADB_USER: solidus_user
+      MARIADB_PASSWORD: password
+      MARIADB_DATABASE: solidus_extension_test
+      MARIADB_ROOT_PASSWORD: password
+    options: --health-cmd="mariadb-admin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+runs-on: ubuntu-22.04
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v4
+
+  - name: Set up Ruby
+    uses: ruby/setup-ruby@v1
+    with:
+      ruby-version: ${{ inputs.ruby-version }}
+      bundler-cache: true
+      rubygems: "latest"
+
+  - name: Restore apt cache
+    id: apt-cache
+    uses: actions/cache@v4
+    with:
+      path: /home/runner/apt/cache
+      key: ${{ runner.os }}-apt-${{ inputs.database }}
+      restore-keys: |
+        ${{ runner.os }}-apt-
+
+  - name: Install Postgres headers
+    if: inputs.database == 'postgresql'
+    shell: bash
+    run: |
+      mkdir -p /home/runner/apt/cache
+      sudo apt update -qq
+      sudo apt install -qq --fix-missing libpq-dev -o dir::cache::archives="/home/runner/apt/cache"
+      sudo chown -R runner /home/runner/apt/cache
+
+  - name: Install MariaDB headers
+    if: inputs.database == 'mariadb'
+    shell: bash
+    run: |
+      mkdir -p /home/runner/apt/cache
+      sudo apt update -qq
+      sudo apt install -qq --fix-missing libmysqlclient-dev -o dir::cache::archives="/home/runner/apt/cache"
+      sudo chown -R runner /home/runner/apt/cache
+
+  - name: Run tests
+    shell: bash
+    run: |
+      bundle exec rake
+
+  - uses: actions/upload-artifact@v4
+    if: failure()
+    with:
+      name: Screenshots
+      path: |
+        spec/dummy/tmp/capybara
+        spec/dummy/tmp/screenshots
