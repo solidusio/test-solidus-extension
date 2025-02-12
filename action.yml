@@ -18,18 +18,10 @@ inputs:
     description: Ruby version to use
     required: true
     default: "3.3"
-  postgres-version:
-    description: Postgres DB server to use
-    required: true
-    default: "latest"
-  mariadb-version:
-    description: MariaDB server to use
-    required: true
-    default: "latest"
 
 services:
   postgres:
-    image: postgres:${{ inputs.postgres-version }}
+    image: postgres:latest
     env:
       POSTGRES_USER: solidus_user
       POSTGRES_PASSWORD: password
@@ -37,7 +29,7 @@ services:
     ports: ["5432:5432"]
     options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
   mariadb:
-    image: mariadb:${{ inputs.mariadb-version }}
+    image: mariadb:latest
     ports: ["3307:3306"]
     env:
       MARIADB_USER: solidus_user
@@ -68,6 +60,13 @@ runs:
       key: ${{ runner.os }}-apt-${{ inputs.database }}
       restore-keys: |
         ${{ runner.os }}-apt-
+  - name: Install libvips
+    shell: bash
+    run: |
+      mkdir -p /home/runner/apt/cache
+      sudo apt update -qq
+      sudo apt install -qq --fix-missing libvips -o dir::cache::archives="/home/runner/apt/cache"
+      sudo chown -R runner /home/runner/apt/cache
   - name: Install Postgres headers
     if: inputs.database == 'postgresql'
     shell: bash
