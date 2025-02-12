@@ -1,11 +1,11 @@
 name: Build and test a solidus extension
 description: Test solidus extension
 inputs:
-  rails_version:
+  rails-version:
     description: Rails version to use
     required: true
     default: 8.0
-  solidus_branch:
+  solidus-branch:
     description: Solidus branch to use
     required: true
     default: main
@@ -52,6 +52,7 @@ runs:
     uses: standardrb/standard-ruby-action@v1
     with:
       autofix: false
+      ruby-version: ${{ inputs.ruby-version }}
 
   - name: Restore apt cache
     id: apt-cache
