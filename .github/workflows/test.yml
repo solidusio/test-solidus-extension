@@ -1,0 +1,74 @@
+name: Test Solidus Extension
+
+on:
+  workflow_call:
+    inputs:
+      rails_versions:
+        description: 'Rails versions to test (JSON array)'
+        type: string
+        default: '["8.0", "7.2"]'
+      ruby_versions:
+        description: 'Ruby versions to test (JSON array)'
+        type: string
+        default: '["3.4"]'
+      solidus_branches:
+        description: 'Solidus branches to test (JSON array)'
+        type: string
+        default: '["v4.6", "v4.5"]'
+      databases:
+        description: 'Databases to test (JSON array): postgresql, mysql, sqlite'
+        type: string
+        default: '["postgresql", "mysql", "sqlite"]'
+
+jobs:
+  Extension:
+    name: Solidus ${{ matrix.solidus_branch }}, Rails ${{ matrix.rails_version }} and Ruby ${{ matrix.ruby_version }} on ${{ matrix.database }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        rails_version: ${{ fromJSON(inputs.rails_versions) }}
+        ruby_version: ${{ fromJSON(inputs.ruby_versions) }}
+        solidus_branch: ${{ fromJSON(inputs.solidus_branches) }}
+        database: ${{ fromJSON(inputs.databases) }}
+        exclude:
+          - solidus_branch: "v4.5"
+            ruby_version: "3.1"
+          - solidus_branch: "v4.6"
+            ruby_version: "3.1"
+          - solidus_branch: "v4.4"
+            rails_version: "8.0"
+          - database: "mysql" # https://github.com/rails/rails/issues/53673
+            rails_version: "8.0"
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 5432:5432
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run extension tests
+        uses: solidusio/test-solidus-extension@support-testings-dbs
+        with:
+          database: ${{ matrix.database }}
+          rails-version: ${{ matrix.rails_version }}
+          ruby-version: ${{ matrix.ruby_version }}
+          solidus-branch: ${{ matrix.solidus_branch }}

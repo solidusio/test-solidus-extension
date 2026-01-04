@@ -1,8 +1,53 @@
 # Test Solidus Extension GitHub action
 
-A GitHub action for testing Solidus extensions
+GitHub actions and workflows for testing Solidus extensions.
 
-## Inputs
+## Usage
+
+### Reusable Workflow (Recommended)
+
+The simplest way to test your extension. The reusable workflow handles database services and provides a sensible default test matrix:
+
+```yaml
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  Test:
+    uses: solidusio/test-solidus-extension/.github/workflows/test.yml@main
+```
+
+#### Inputs
+
+| Input | Description | Default |
+|-------|-------------|---------|
+| `rails_versions` | Rails versions (JSON array) | `["8.0", "7.2"]` |
+| `ruby_versions` | Ruby versions (JSON array) | `["3.4"]` |
+| `solidus_branches` | Solidus branches (JSON array) | `["v4.6", "v4.5"]` |
+| `databases` | Databases (JSON array) | `["postgresql", "mysql", "sqlite"]` |
+
+#### Custom Matrix
+
+Override any input to customize the test matrix:
+
+```yaml
+jobs:
+  test:
+    uses: solidusio/test-solidus-extension/.github/workflows/test.yml@main
+    with:
+      rails_versions: '["7.2"]'
+      databases: '["postgresql", "sqlite"]'
+```
+
+### Composite Action
+
+For full control over your workflow, use the composite action directly. This requires you to define database services yourself.
+
+#### Inputs
 
 | Input | Description | Required | Default |
 |-------|-------------|----------|---------|
@@ -11,13 +56,13 @@ A GitHub action for testing Solidus extensions
 | `solidus-branch` | Solidus branch to use | Yes | `main` |
 | `database` | Database to use (`sqlite`, `postgresql`, `mysql`, or `mariadb`) | Yes | `sqlite` |
 
-## Database Services
+#### Database Services
 
-This is a composite GitHub Action, which means it **cannot define services directly**. If you need to test against PostgreSQL or MySQL/MariaDB, you must define the database service in your workflow file.
+The composite GitHub Action **cannot define services directly**. If you need to test against PostgreSQL or MySQL/MariaDB, you must define the database service in your workflow file.
 
 The action will install the necessary database client libraries automatically based on the `database` input.
 
-### Database Credentials
+#### Database Credentials
 
 The action automatically sets the correct `DB_USERNAME` based on the database:
 
@@ -29,7 +74,7 @@ Configure your database services with passwordless access for simplicity (see ex
 > [!WARNING]
 > Rails 8.0 has a [known issue](https://github.com/rails/rails/issues/53673) with MySQL/MariaDB that causes empty `Mysql2::Error` messages. Until a fix is released, exclude the `mariadb` + Rails 8.0 combination from your test matrix.
 
-## Example configuration
+#### Example Configuration
 
 ```yaml
 name: Test
