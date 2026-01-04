@@ -26,6 +26,9 @@ The action automatically sets the correct `DB_USERNAME` based on the database:
 
 Configure your database services with passwordless access for simplicity (see example below).
 
+> [!WARNING]
+> Rails 8.0 has a [known issue](https://github.com/rails/rails/issues/53673) with MySQL/MariaDB that causes empty `Mysql2::Error` messages. Until a fix is released, exclude the `mariadb` + Rails 8.0 combination from your test matrix.
+
 ## Example configuration
 
 ```yaml
