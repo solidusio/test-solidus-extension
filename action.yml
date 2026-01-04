@@ -41,59 +41,59 @@ services:
 runs:
   using: "composite"
   steps:
-  - uses: actions/checkout@v4
-  - name: Set up Ruby
-    uses: ruby/setup-ruby@v1
-    env:
-      RAILS_VERSION: ${{ inputs.rails-version }}
-      SOLIDUS_BRANCH: ${{ inputs.solidus-branch }}
-    with:
-      ruby-version: ${{ inputs.ruby-version }}
-      bundler-cache: true
-      cache-version: ${{ inputs.rails-version }}-${{ inputs.solidus-branch }}-{{ inputs.database }}-{{ inputs.ruby-version }}
-      rubygems: "latest"
-  - name: Restore apt cache
-    id: apt-cache
-    uses: actions/cache@v4
-    with:
-      path: /home/runner/apt/cache
-      key: ${{ runner.os }}-apt-${{ inputs.database }}
-      restore-keys: |
-        ${{ runner.os }}-apt-
-  - name: Install libvips
-    shell: bash
-    run: |
-      mkdir -p /home/runner/apt/cache
-      sudo apt update -qq
-      sudo apt install -qq --fix-missing libvips -o dir::cache::archives="/home/runner/apt/cache"
-      sudo chown -R runner /home/runner/apt/cache
-  - name: Install Postgres headers
-    if: inputs.database == 'postgresql'
-    shell: bash
-    run: |
-      mkdir -p /home/runner/apt/cache
-      sudo apt update -qq
-      sudo apt install -qq --fix-missing libpq-dev -o dir::cache::archives="/home/runner/apt/cache"
-      sudo chown -R runner /home/runner/apt/cache
-  - name: Install MariaDB headers
-    if: inputs.database == 'mariadb'
-    shell: bash
-    run: |
-      mkdir -p /home/runner/apt/cache
-      sudo apt update -qq
-      sudo apt install -qq --fix-missing libmysqlclient-dev -o dir::cache::archives="/home/runner/apt/cache"
-      sudo chown -R runner /home/runner/apt/cache
-  - name: Run tests
-    shell: bash
-    env:
-      RAILS_VERSION: ${{ inputs.rails-version }}
-      SOLIDUS_BRANCH: ${{ inputs.solidus-branch }}
-    run: |
-      bundle exec rake
-  - uses: actions/upload-artifact@v4
-    if: failure()
-    with:
-      name: Screenshots
-      path: |
-        spec/dummy/tmp/capybara
-        spec/dummy/tmp/screenshots
+    - uses: actions/checkout@v4
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      env:
+        RAILS_VERSION: ${{ inputs.rails-version }}
+        SOLIDUS_BRANCH: ${{ inputs.solidus-branch }}
+      with:
+        ruby-version: ${{ inputs.ruby-version }}
+        bundler-cache: true
+        cache-version: ${{ inputs.rails-version }}-${{ inputs.solidus-branch }}-{{ inputs.database }}-{{ inputs.ruby-version }}
+        rubygems: "latest"
+    - name: Restore apt cache
+      id: apt-cache
+      uses: actions/cache@v4
+      with:
+        path: /home/runner/apt/cache
+        key: ${{ runner.os }}-apt-${{ inputs.database }}
+        restore-keys: |
+          ${{ runner.os }}-apt-
+    - name: Install libvips
+      shell: bash
+      run: |
+        mkdir -p /home/runner/apt/cache
+        sudo apt update -qq
+        sudo apt install -qq --fix-missing libvips -o dir::cache::archives="/home/runner/apt/cache"
+        sudo chown -R runner /home/runner/apt/cache
+    - name: Install Postgres headers
+      if: inputs.database == 'postgresql'
+      shell: bash
+      run: |
+        mkdir -p /home/runner/apt/cache
+        sudo apt update -qq
+        sudo apt install -qq --fix-missing libpq-dev -o dir::cache::archives="/home/runner/apt/cache"
+        sudo chown -R runner /home/runner/apt/cache
+    - name: Install MariaDB headers
+      if: inputs.database == 'mariadb'
+      shell: bash
+      run: |
+        mkdir -p /home/runner/apt/cache
+        sudo apt update -qq
+        sudo apt install -qq --fix-missing libmysqlclient-dev -o dir::cache::archives="/home/runner/apt/cache"
+        sudo chown -R runner /home/runner/apt/cache
+    - name: Run tests
+      shell: bash
+      env:
+        RAILS_VERSION: ${{ inputs.rails-version }}
+        SOLIDUS_BRANCH: ${{ inputs.solidus-branch }}
+      run: |
+        bundle exec rake
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: Screenshots
+        path: |
+          spec/dummy/tmp/capybara
+          spec/dummy/tmp/screenshots
