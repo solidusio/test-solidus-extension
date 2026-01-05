@@ -38,8 +38,6 @@ jobs:
             ruby_version: "3.1"
           - solidus_branch: "v4.4"
             rails_version: "8.0"
-          - database: "mysql" # https://github.com/rails/rails/issues/53673
-            rails_version: "8.0"
     services:
       postgres:
         image: postgres:16
