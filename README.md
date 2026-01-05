@@ -2,6 +2,33 @@
 
 A GitHub action for testing Solidus extensions
 
+## Inputs
+
+| Input | Description | Required | Default |
+|-------|-------------|----------|---------|
+| `ruby-version` | Ruby version to use | Yes | `3.3` |
+| `rails-version` | Rails version to use | Yes | `7.2` |
+| `solidus-branch` | Solidus branch to use | Yes | `main` |
+| `database` | Database to use (`sqlite`, `postgresql`, `mysql`, or `mariadb`) | Yes | `sqlite` |
+
+## Database Services
+
+This is a composite GitHub Action, which means it **cannot define services directly**. If you need to test against PostgreSQL or MySQL/MariaDB, you must define the database service in your workflow file.
+
+The action will install the necessary database client libraries automatically based on the `database` input.
+
+### Database Credentials
+
+The action automatically sets the correct `DB_USERNAME` based on the database:
+
+- **PostgreSQL**: `postgres` (default superuser)
+- **MySQL/MariaDB**: `root` (default superuser)
+
+Configure your database services with passwordless access for simplicity (see example below).
+
+> [!WARNING]
+> Rails 8.0 has a [known issue](https://github.com/rails/rails/issues/53673) with MySQL/MariaDB that causes empty `Mysql2::Error` messages. Until a fix is released, exclude the `mariadb` + Rails 8.0 combination from your test matrix.
+
 ## Example configuration
 
 ```yaml
@@ -26,6 +53,29 @@ jobs:
   rspec:
     name: Solidus ${{ matrix.solidus-branch }}, Rails ${{ matrix.rails-version }} and Ruby ${{ matrix.ruby-version }} on ${{ matrix.database }}
     runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 5432:5432
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 3306:3306
     strategy:
       fail-fast: true
       matrix:
