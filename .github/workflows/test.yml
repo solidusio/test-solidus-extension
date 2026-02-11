@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run extension tests
-        uses: solidusio/test-solidus-extension@support-testings-dbs
+        uses: solidusio/test-solidus-extension@main
         with:
           database: ${{ matrix.database }}
           rails-version: ${{ matrix.rails_version }}
