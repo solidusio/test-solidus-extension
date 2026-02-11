@@ -1,4 +1,4 @@
-# Test Solidus Extension GitHub action
+# Test Solidus Extension Workflows
 
 GitHub actions and workflows for testing Solidus extensions.
 
