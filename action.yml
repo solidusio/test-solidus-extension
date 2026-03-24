@@ -5,7 +5,7 @@ inputs:
   rails-version:
     description: Rails version to use
     required: true
-    default: "7.2"
+    default: "8.1"
   solidus-branch:
     description: Solidus branch to use
     required: true
@@ -17,7 +17,7 @@ inputs:
   ruby-version:
     description: Ruby version to use
     required: true
-    default: "3.3"
+    default: "4.0"
 
 runs:
   using: "composite"
