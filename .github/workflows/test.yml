@@ -10,7 +10,7 @@ on:
       ruby_versions:
         description: 'Ruby versions to test (JSON array)'
         type: string
-        default: '["3.4"]'
+        default: '["3.4", "4.0"]'
       solidus_branches:
         description: 'Solidus branches to test (JSON array)'
         type: string
@@ -32,10 +32,6 @@ jobs:
         solidus_branch: ${{ fromJSON(inputs.solidus_branches) }}
         database: ${{ fromJSON(inputs.databases) }}
         exclude:
-          - solidus_branch: "v4.5"
-            ruby_version: "3.1"
-          - solidus_branch: "v4.6"
-            ruby_version: "3.1"
           - solidus_branch: "v4.4"
             rails_version: "8.0"
     services:
