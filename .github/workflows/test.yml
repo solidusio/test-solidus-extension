@@ -14,7 +14,7 @@ on:
       solidus_branches:
         description: 'Solidus branches to test (JSON array)'
         type: string
-        default: '["v4.6", "v4.5"]'
+        default: '["v4.7", "v4.6", "v4.5"]'
       databases:
         description: 'Databases to test (JSON array): postgresql, mysql, sqlite'
         type: string

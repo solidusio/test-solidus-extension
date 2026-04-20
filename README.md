@@ -27,7 +27,7 @@ jobs:
 |-------|-------------|---------|
 | `rails_versions` | Rails versions (JSON array) | `["8.0", "7.2"]` |
 | `ruby_versions` | Ruby versions (JSON array) | `["3.4"]` |
-| `solidus_branches` | Solidus branches (JSON array) | `["v4.6", "v4.5"]` |
+| `solidus_branches` | Solidus branches (JSON array) | `["v4.7", "v4.6", "v4.5"]` |
 | `databases` | Databases (JSON array) | `["postgresql", "mysql", "sqlite"]` |
 
 #### Custom Matrix
