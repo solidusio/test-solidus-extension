@@ -6,7 +6,7 @@ on:
       rails_versions:
         description: 'Rails versions to test (JSON array)'
         type: string
-        default: '["8.0", "7.2"]'
+        default: '["8.0", "8.1"]'
       ruby_versions:
         description: 'Ruby versions to test (JSON array)'
         type: string
@@ -14,7 +14,7 @@ on:
       solidus_branches:
         description: 'Solidus branches to test (JSON array)'
         type: string
-        default: '["v4.7", "v4.6", "v4.5"]'
+        default: '["v4.7", "v4.6"]'
       databases:
         description: 'Databases to test (JSON array): postgresql, mysql, sqlite'
         type: string
@@ -32,8 +32,8 @@ jobs:
         solidus_branch: ${{ fromJSON(inputs.solidus_branches) }}
         database: ${{ fromJSON(inputs.databases) }}
         exclude:
-          - solidus_branch: "v4.4"
-            rails_version: "8.0"
+          - solidus_branch: "v4.6"
+            rails_version: "8.1"
     services:
       postgres:
         image: postgres:16
